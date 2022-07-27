@@ -9,6 +9,7 @@ abstract class Model
     protected $select = '*';
     protected $where;
     protected $update;
+    protected $orderBy;
 
     public function __construct()
     {
@@ -40,11 +41,21 @@ abstract class Model
     }
 
     /**
+     * @param string $column
+     * @param string $order
+     * @return $this
+     */
+    public function orderBy(string $column, string $order){
+        $this->orderBy = "ORDER BY $column $order";
+        return $this;
+    }
+
+    /**
      * @return array|false
      */
     public function get()
     {
-        $query = $this->db->prepare("SELECT $this->select FROM $this->table $this->where");
+        $query = $this->db->prepare("SELECT $this->select FROM $this->table $this->where $this->orderBy");
         $query->execute();
         return $query->fetchAll(\PDO::FETCH_OBJ);
     }
