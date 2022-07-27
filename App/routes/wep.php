@@ -3,9 +3,7 @@
 use \Tsoft\Core\Route;
 
 
-Route::get('/',function (){
+Route::get('/', 'TeamController@index')->name('index');
+Route::get('/delete/{id}', 'TeamController@destroy')->name('delete');
+Route::get('/scorboard', 'TeamController@scorboard')->name('scorboard');
 
-
-    $model = new \Tsoft\App\Models\User();
-    echo $model->where(['id' => 5])->update(['point' => 50, 'drawn' => 3]);
-});
