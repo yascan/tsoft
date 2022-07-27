@@ -13,7 +13,7 @@ class TeamController
     }
 
     public function index(){
-        $teams = $this->model->get();
+        $teams = $this->model->select(['id', 'name', 'power'])->get();
         return view('index', ['teams' => $teams]);
     }
 
