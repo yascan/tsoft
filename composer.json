@@ -1,0 +1,20 @@
+{
+    "name": "yasar/tsoft-case",
+    "description": "tsoft case lig sistemi",
+    "type": "project",
+    "require": {
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tsoft\\": "./"
+        },
+        "files": ["Core/Helpers/helpers.php"]
+    },
+    "authors": [
+        {
+            "name": "Yaşar Can AKBAŞ",
+            "email": "30414432+yascan@users.noreply.github.com"
+        }
+    ]
+}
