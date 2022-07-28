@@ -13,6 +13,7 @@ class Route
     public static bool $hasRoute = false;
     public static array $routes = [];
     public static string $prefix = '';
+    private static string $method = "get";
 
     /**
      * @param $path
@@ -33,9 +34,11 @@ class Route
      * @return void
      */
     public static function post($path, $callback){
-        self::$routes['post'][$path] = [
+
+        self::$routes['post'][self::$prefix . $path] = [
             'callback' => $callback
         ];
+        return new self();
     }
 
     public static function dispatch(){

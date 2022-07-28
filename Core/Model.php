@@ -8,8 +8,9 @@ abstract class Model
     protected $db;
     protected $select = '*';
     protected $where;
-    protected $update;
     protected $orderBy;
+    protected $join;
+    protected $limit;
 
     public function __construct()
     {
@@ -45,7 +46,9 @@ abstract class Model
      * @param string $order
      * @return $this
      */
-    public function orderBy(string $column, string $order){
+    public function orderBy(string $column, string $order)
+    {
+        $order = strtoupper($order) == "ASC" ? strtoupper($order) : 'DESC';
         $this->orderBy = "ORDER BY $column $order";
         return $this;
     }
@@ -55,7 +58,8 @@ abstract class Model
      */
     public function get()
     {
-        $query = $this->db->prepare("SELECT $this->select FROM $this->table $this->where $this->orderBy");
+        //echo $this->selectString(); exit;
+        $query = $this->db->prepare($this->selectString());
         $query->execute();
         return $query->fetchAll(\PDO::FETCH_OBJ);
     }
@@ -66,8 +70,10 @@ abstract class Model
      */
     public function findById(int $id)
     {
-        $query = $this->db->prepare("SELECT $this->select FROM $this->table WHERE id=:id LIMIT 1");
-        $query->execute(compact('id'));
+        $this->where(['id' => intval($id)]);
+        $this->limit(1);
+        $query = $this->db->prepare($this->selectString());
+        $query->execute();
         return $query->fetch(\PDO::FETCH_OBJ);
     }
 
@@ -77,11 +83,11 @@ abstract class Model
      */
     public function update(array $data)
     {
-        $updateMap = array_map(function ($key, $value) {
-            return "$key=:$key";
-        }, array_keys($data), $data);
-        $this->update = implode(', ', $updateMap);
-        $query = $this->db->prepare("UPDATE $this->table SET $this->update $this->where");
+        $keyData = array_map(function ($key) {
+            return "$key=:$key, ";
+        }, array_keys($data));
+        $keyData = rtrim($keyData,', ');
+        $query = $this->db->prepare("UPDATE $this->table SET $keyData $this->where $this->limit");
         return $query->execute($data);
     }
 
@@ -90,7 +96,7 @@ abstract class Model
      */
     public function delete()
     {
-        $query = $this->db->prepare("DELETE FROM $this->table $this->where");
+        $query = $this->db->prepare("DELETE FROM $this->table $this->where $this->limit");
         return $query->execute();
     }
 
@@ -98,13 +104,41 @@ abstract class Model
      * @param array $data
      * @return bool
      */
-    public function create(array $data)
+    public function insert(array $data)
     {
         $keys = array_keys($data);
         $fields = implode(',', $keys);
         $placeholders = rtrim(str_repeat('?,', count($keys)), ',');
         $query = $this->db->prepare("INSERT INTO $this->table ($fields) VALUES ($placeholders)");
         return $query->execute(array_values($data));
+    }
+
+    /**
+     * @param $join
+     * @return $this
+     */
+    public function join($join)
+    {
+        $this->join = $join;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    private function selectString(): string
+    {
+        return "SELECT $this->select FROM $this->table $this->join $this->where $this->orderBy $this->limit";
+    }
+
+    /**
+     * @param int $limit
+     * @return $this
+     */
+    public function limit(int $limit)
+    {
+        $this->limit = "LIMIT $limit";
+        return $this;
     }
 
 
