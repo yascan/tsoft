@@ -61,7 +61,9 @@ abstract class Model
         //echo $this->selectString(); exit;
         $query = $this->db->prepare($this->selectString());
         $query->execute();
-        return $query->fetchAll(\PDO::FETCH_OBJ);
+        $execute = $query->fetchAll(\PDO::FETCH_OBJ);
+        $this->reset();
+        return $execute;
     }
 
     /**
@@ -73,8 +75,9 @@ abstract class Model
         $this->where(['id' => intval($id)]);
         $this->limit(1);
         $query = $this->db->prepare($this->selectString());
-        $query->execute();
-        return $query->fetch(\PDO::FETCH_OBJ);
+        $execute = $query->execute()->fetch(\PDO::FETCH_OBJ);
+        $this->reset();
+        return $execute;
     }
 
     /**
@@ -86,9 +89,11 @@ abstract class Model
         $keyData = array_map(function ($key) {
             return "$key=:$key, ";
         }, array_keys($data));
-        $keyData = rtrim($keyData,', ');
+        $keyData = rtrim($keyData, ', ');
         $query = $this->db->prepare("UPDATE $this->table SET $keyData $this->where $this->limit");
-        return $query->execute($data);
+        $execute = $query->execute($data);
+        $this->reset();
+        return $execute;
     }
 
     /**
@@ -97,7 +102,9 @@ abstract class Model
     public function delete()
     {
         $query = $this->db->prepare("DELETE FROM $this->table $this->where $this->limit");
-        return $query->execute();
+        $execute = $query->execute();
+        $this->reset();
+        return $execute;
     }
 
     /**
@@ -106,11 +113,27 @@ abstract class Model
      */
     public function insert(array $data)
     {
-        $keys = array_keys($data);
+        if (is_array($data[array_key_first($data)])) {
+            $keys = array_keys($data[array_key_first($data)]);
+            $placeholders = "(" . rtrim(str_repeat('?,', count($keys)), ',') . ")";
+            $tempPlaceholders = '';
+            $insertValues = [];
+            foreach ($data as $value) {
+                $tempPlaceholders .= $placeholders . ",";
+                $insertValues = array_merge($insertValues, array_values($value));
+            }
+            $placeholders = rtrim($tempPlaceholders, ',');
+        } else {
+            $keys = array_keys($data);
+            $placeholders = "(" . rtrim(str_repeat('?,', count($keys)), ',') . ")";
+            $insertValues = array_values($data);
+        }
         $fields = implode(',', $keys);
-        $placeholders = rtrim(str_repeat('?,', count($keys)), ',');
-        $query = $this->db->prepare("INSERT INTO $this->table ($fields) VALUES ($placeholders)");
-        return $query->execute(array_values($data));
+
+        $query = $this->db->prepare("INSERT INTO $this->table ($fields) VALUES $placeholders");
+        $execute = $query->execute($insertValues);
+        $this->reset();
+        return $execute;
     }
 
     /**
@@ -139,6 +162,38 @@ abstract class Model
     {
         $this->limit = "LIMIT $limit";
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function count()
+    {
+        $this->select('count(*)');
+        return $this->db->query($this->selectString())->fetchColumn();
+    }
+
+    private function reset()
+    {
+        $this->select = "*";
+        $this->where = '';
+        $this->orderBy = '';
+        $this->join = '';
+        $this->limit = '';
+    }
+
+    /**
+     * @param array|string $tables
+     * @return bool
+     */
+    public function truncate(array|string $tables){
+        $tables = is_array($tables) ? $tables : [$tables];
+        $sql = '';
+       foreach ($tables as $table){
+           $sql .= "TRUNCATE TABLE $table; ";
+       }
+        $query = $this->db->prepare($sql);
+        return $query->execute();
     }
 
 
