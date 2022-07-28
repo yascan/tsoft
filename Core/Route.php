@@ -13,7 +13,6 @@ class Route
     public static bool $hasRoute = false;
     public static array $routes = [];
     public static string $prefix = '';
-    private static string $method = "get";
 
     /**
      * @param $path
