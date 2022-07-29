@@ -10,5 +10,6 @@ Route::get('/fixture', 'FixtureController@index')->name('fixture');
 Route::get('/createFixture', 'FixtureController@createFixture')->name('createFixture');
 Route::post('/store','TeamController@store');
 Route::get('/destroyAll', 'FixtureController@destroyAll')->name('destroyAll');
+Route::get('/start', 'FixtureController@start')->name('start');
 
 

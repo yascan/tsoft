@@ -1,10 +1,10 @@
-<?= view('static.header') ?>
+<?= view('layouts.header') ?>
 
     <h3>Karşılaşma Tablosu</h3>
 
     <div class=" float-end">
         <?php if ($isFixture): ?>
-            <a href="<?= route('') ?>" class="btn btn-primary">
+            <a href="<?= route('start') ?>" class="btn btn-primary">
                 Müsabakayı Başlat
             </a>
         <?php else: ?>
@@ -13,7 +13,7 @@
             </a>
         <?php endif; ?>
         <a href="<?= route('destroyAll') ?>" class="btn btn-danger">
-            Ligi Sil
+            Fikstürü Sil
         </a>
     </div>
 
@@ -38,4 +38,4 @@
         </tbody>
     </table>
 
-<?= view('static.footer') ?>
+<?= view('layouts.footer') ?>

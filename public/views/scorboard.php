@@ -1,4 +1,4 @@
-<?= view('static.header') ?>
+<?= view('layouts.header') ?>
     <div class="row">
         <div class="col-12">
             <h3>Puan durumu tablosu</h3>
@@ -12,7 +12,7 @@
                     <th scope="col">Galibiyet</th>
                     <th scope="col">Berabere</th>
                     <th scope="col">Malubiyet</th>
-                    <th scope="col">Puan</th>
+                    <th scope="col">Puan <i class="fa-solid fa-angle-down"></i></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,4 +30,4 @@
             </table>
         </div>
     </div>
-<?= view('static.footer') ?>
+<?= view('layouts.footer') ?>

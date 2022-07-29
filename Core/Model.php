@@ -35,6 +35,10 @@ abstract class Model
     public function where(array $where)
     {
         $whereMap = array_map(function ($key, $value) {
+            if (is_array($value)){
+                $value[2] = $value[2] == null ? 'null' : "'$value'";
+                return "$value[0] $value[1] $value[2]";
+            }
             return "$key = '$value'";
         }, array_keys($where), $where);
         $this->where = "WHERE " . implode(' and ', $whereMap);
@@ -58,7 +62,7 @@ abstract class Model
      */
     public function get()
     {
-        //echo $this->selectString(); exit;
+       // echo $this->selectString(); exit;
         $query = $this->db->prepare($this->selectString());
         $query->execute();
         $execute = $query->fetchAll(\PDO::FETCH_OBJ);
@@ -87,9 +91,9 @@ abstract class Model
     public function update(array $data)
     {
         $keyData = array_map(function ($key) {
-            return "$key=:$key, ";
+            return "$key=:$key";
         }, array_keys($data));
-        $keyData = rtrim($keyData, ', ');
+        $keyData = implode(', ',$keyData);
         $query = $this->db->prepare("UPDATE $this->table SET $keyData $this->where $this->limit");
         $execute = $query->execute($data);
         $this->reset();

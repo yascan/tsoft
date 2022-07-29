@@ -1,4 +1,4 @@
-<?= view('static.header') ?>
+<?= view('layouts.header') ?>
 <h3>Takım Listesi</h3>
 <div class=" float-end">
     <buttun class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTeams">Takım ekle</buttun>
@@ -54,4 +54,4 @@
         </div>
     </div>
 </div>
-<?= view('static.footer') ?>
+<?= view('layouts.footer') ?>
